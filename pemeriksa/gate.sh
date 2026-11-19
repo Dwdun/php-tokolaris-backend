@@ -101,6 +101,13 @@ case "$perintah" in
     php pemeriksa/reset_db.php
     ;;
 
+  export)
+    echo "=========================================================="
+    echo " MEMBUNGKUS HASIL EVALUASI TIKET PESERTA"
+    echo "=========================================================="
+    php pemeriksa/export_hasil.php
+    ;;
+
   kirim)
     echo "[+] Mengirim status pengujian lokal ke Papan Proyektor ($PAPAN_URL)..."
     php pemeriksa/kirim.php || echo "⚠️ Gagal kirim ke server papan (Mode Offline aktif - gunakan ./gate status untuk pantau lokal)"
