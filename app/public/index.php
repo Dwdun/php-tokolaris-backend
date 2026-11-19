@@ -21,6 +21,16 @@ $searchController = new SearchController();
 $invoiceController = new InvoiceController();
 $authController = new AuthController();
 
+if ($uri === '/' || $uri === '') {
+    echo json_encode([
+        'status' => 'online',
+        'service' => 'TokoLaris Backend API',
+        'version' => '1.0.0-legacy',
+        'dashboard' => '/papan'
+    ]);
+    exit;
+}
+
 // Basic Legacy Routing
 if ($uri === '/api/v1/orders/checkout' && $method === 'POST') {
     $input = json_decode(file_get_contents('php://input'), true) ?? $_POST;
