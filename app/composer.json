@@ -1,0 +1,37 @@
+{
+    "name": "tokolaris/shop-legacy-backend",
+    "description": "Legacy Monolith E-Commerce Backend for Bootcamp Simulation",
+    "type": "project",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "App\\": "app/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    },
+    "require": {
+        "php": "^8.2",
+        "ext-pdo": "*",
+        "ext-pdo_mysql": "*",
+        "ext-redis": "*"
+    },
+    "require-dev": {
+        "pestphp/pest": "^2.34",
+        "phpstan/phpstan": "^1.11",
+        "rector/rector": "^1.1"
+    },
+    "config": {
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
+    },
+    "scripts": {
+        "test": "pest",
+        "baseline": "php bin/baseline-audit.php",
+        "analyse": "phpstan analyse --level=5 app"
+    }
+}

@@ -1,0 +1,83 @@
+services:
+  app:
+    build:
+      context: ..
+      dockerfile: app/Dockerfile
+    container_name: tokolaris_peserta_app
+    restart: unless-stopped
+    working_dir: /var/www
+    volumes:
+      - ..:/var/www
+    environment:
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_DATABASE: tokolaris_db
+      DB_USERNAME: root
+      DB_PASSWORD: rootpassword
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      NAMA_PESERTA: "${NAMA_PESERTA:-Peserta_Meja01}"
+      PAPAN_URL: "${PAPAN_URL:-http://192.168.1.10:3000/api/progres}"
+    depends_on:
+      - db
+      - redis
+    networks:
+      - tokolaris_lan
+
+  web:
+    image: nginx:alpine
+    container_name: tokolaris_peserta_web
+    ports:
+      - "8080:80"
+    volumes:
+      - ..:/var/www:ro
+      - ../nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - app
+    networks:
+      - tokolaris_lan
+
+  db:
+    image: mysql:8.0
+    container_name: tokolaris_peserta_db
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: tokolaris_db
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_peserta_data:/var/lib/mysql
+      - ../db/01_skema.sql:/docker-entrypoint-initdb.d/01_skema.sql
+      - ../data/10_master.sql:/docker-entrypoint-initdb.d/10_master.sql
+      - ../data/11_transaksi.sql:/docker-entrypoint-initdb.d/11_transaksi.sql
+      - ../data/12_cacat_stok.sql:/docker-entrypoint-initdb.d/12_cacat_stok.sql
+    networks:
+      - tokolaris_lan
+
+  redis:
+    image: redis:7-alpine
+    container_name: tokolaris_peserta_redis
+    ports:
+      - "6379:6379"
+    networks:
+      - tokolaris_lan
+
+  k6:
+    image: grafana/k6:latest
+    container_name: tokolaris_peserta_k6
+    environment:
+      BASE_URL: http://web:80
+    volumes:
+      - ../skenario:/scripts
+    depends_on:
+      - web
+    networks:
+      - tokolaris_lan
+
+networks:
+  tokolaris_lan:
+    driver: bridge
+
+volumes:
+  mysql_peserta_data:
+    driver: local

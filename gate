@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+# gate - Launcher script adaptif untuk Linux/macOS
+set -e
+
+DOCKER_CMD="docker compose"
+if ! docker compose version >/dev/null 2>&1; then
+    DOCKER_CMD="docker-compose"
+fi
+
+if [[ -f "peserta/docker-compose.yml" ]]; then
+    $DOCKER_CMD -f peserta/docker-compose.yml exec app bash /var/www/pemeriksa/gate.sh "$@"
+elif [[ -f "docker-compose.yml" ]]; then
+    $DOCKER_CMD exec app bash /var/www/pemeriksa/gate.sh "$@"
+else
+    bash pemeriksa/gate.sh "$@"
+fi
