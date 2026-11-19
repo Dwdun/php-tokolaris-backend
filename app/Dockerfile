@@ -1,9 +1,9 @@
 FROM php:8.2-fpm-alpine
 
-RUN apk add --no-cache \
+RUN apk update && apk add --no-cache \
     curl \
     git \
-    mysql-client \
+    mariadb-client \
     linux-headers \
     bash \
     $PHPIZE_DEPS \
