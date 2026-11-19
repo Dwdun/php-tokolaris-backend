@@ -1,6 +1,8 @@
 vendor/
 .env
+dist/
 *.log
 .DS_Store
 Thumbs.db
-dist/
+papan/progres_data.json
+hasil_peserta.json
