@@ -32,14 +32,7 @@ case "$perintah" in
       echo ""
       echo "Gunakan: ./gate lihat [KODE_TIKET] untuk melihat lembar tiket (contoh: ./gate lihat T04)."
     else
-      echo "=========================================================="
-      echo " DETAIL SPESIFIKASI TIKET: $target"
-      echo "=========================================================="
-      if compgen -G "tiket/${target}*.md" > /dev/null; then
-        cat tiket/${target}*.md
-      else
-        echo "File spesifikasi tiket $target belum ditemukan di folder tiket/."
-      fi
+      php pemeriksa/lihat_tiket.php "$target"
     fi
     ;;
 
