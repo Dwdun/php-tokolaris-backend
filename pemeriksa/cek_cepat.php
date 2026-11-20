@@ -15,16 +15,16 @@ use App\Controllers\InvoiceController;
 use App\Controllers\AuthController;
 use App\Services\CartService;
 
-// 1. Muat Konfigurasi Peserta
+// 1. Muat Konfigurasi Peserta (peserta_config.json diprioritaskan)
 $configFile = __DIR__ . '/../peserta_config.json';
 $config = [];
 if (file_exists($configFile)) {
     $config = json_decode(file_get_contents($configFile), true) ?: [];
 }
 
-$namaPeserta = getenv('NAMA_PESERTA') ?: ($config['nama_peserta'] ?? 'Peserta_Meja01');
-$nomorMeja   = getenv('NOMOR_MEJA')   ?: ($config['meja'] ?? 'Meja 01');
-$mentorUrl   = getenv('MENTOR_URL')   ?: ($config['mentor_server_url'] ?? 'http://web/papan');
+$namaPeserta = !empty($config['nama_peserta']) ? $config['nama_peserta'] : (getenv('NAMA_PESERTA') ?: 'Peserta_Meja01');
+$nomorMeja   = !empty($config['meja']) ? $config['meja'] : (getenv('NOMOR_MEJA') ?: 'Meja 01');
+$mentorUrl   = !empty($config['mentor_server_url']) ? $config['mentor_server_url'] : (getenv('MENTOR_URL') ?: 'http://web/papan');
 
 // 2. Definisi Seluruh Tiket dan Logika Pengujian
 $allCheckers = [
