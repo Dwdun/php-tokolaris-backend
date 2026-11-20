@@ -1,0 +1,76 @@
+name: Evaluasi Tiket Otomatis
+
+on:
+  push:
+    branches: [ "main", "feat/*", "tiket/*", "feature/*" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  verifikasi:
+    name: Verifikasi Tiket Kandidat
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: tokolaris
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: --health-cmd="redis-cli ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup PHP 8.2
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: pdo, pdo_mysql, redis
+          coverage: none
+
+      - name: Install Dependencies
+        run: composer install --prefer-dist --no-progress --no-interaction
+
+      - name: Inisialisasi Database
+        env:
+          DB_HOST: 127.0.0.1
+          DB_PORT: 3306
+          DB_NAME: tokolaris
+          DB_USER: root
+          DB_PASS: root
+        run: php pemeriksa/reset_db.php
+
+      - name: Deteksi Tiket & Jalankan Pengujian
+        env:
+          DB_HOST: 127.0.0.1
+          DB_PORT: 3306
+          DB_NAME: tokolaris
+          DB_USER: root
+          DB_PASS: root
+          REDIS_HOST: 127.0.0.1
+          REDIS_PORT: 6379
+          MENTOR_URL: ${{ secrets.MENTOR_SERVER_URL }}
+          NAMA_PESERTA: ${{ github.actor }}
+        run: |
+          # Ekstrak kode tiket dari nama branch atau commit message (contoh: T01, T04, B01)
+          BRANCH_NAME="${{ github.ref_name }}"
+          COMMIT_MSG="${{ github.event.head_commit.message }}"
+          TARGET_TIKET=$(echo "$BRANCH_NAME $COMMIT_MSG" | grep -o -E '(T[0-2][0-9]|B0[1-5])' | head -n 1 || echo "")
+
+          if [ -n "$TARGET_TIKET" ]; then
+            echo "Menjalankan evaluasi tiket terdeteksi: $TARGET_TIKET"
+            php pemeriksa/cek_cepat.php "$TARGET_TIKET"
+          else
+            echo "Tidak ada tiket spesifik yang terdeteksi di nama branch/commit. Menjalankan status pengujian..."
+            php pemeriksa/cek_cepat.php
+          fi
