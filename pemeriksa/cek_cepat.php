@@ -4,6 +4,9 @@
 // Menyembunyikan total tiket dan poin dari peserta agar fokus pada investigasi kode.
 
 require_once __DIR__ . '/../app/Support/Database.php';
+if (file_exists(__DIR__ . '/../vendor/autoload.php')) {
+    require_once __DIR__ . '/../vendor/autoload.php';
+}
 
 use App\Support\Database;
 use App\Controllers\OrderController;
